@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "itou_c4_python_api"
+version = "0.1.0"
+description = "Python API for JS Tracker"
+authors = ["pmontens <pieterjan@montens.net>"]
+packages = [
+    { include = "webservice" },
+]
+
+[tool.poetry.dependencies]
+python = ">=3.8"
+fastapi = "^0.61.1"
+pyyaml = "^5.3.1"
+pytz = "^2020.1"
+asyncpg = "^0.21.0"
+uvicorn = "^0.11.8"
+
+[tool.poetry.dev-dependencies]
+pylint = "^2.6.0"
+isort = "^5.4.2"
+flake8 = "^3.8.3"
+
+[tool.poetry.scripts]
+api = "webservice.main:main"
+
+[tool.dephell.main]
+from = {format = "poetry", path = "pyproject.toml"}
+to = {format = "setuppy", path = "setup.py"}
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"

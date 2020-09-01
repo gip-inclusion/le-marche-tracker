@@ -21,7 +21,7 @@ setup(
     author_email='pieterjan@montens.net',
     entry_points={"console_scripts": ["api = webservice.main:main"]},
     packages=['webservice'],
-    package_dir={"": "."},
+    package_dir={"": ".", "webservice": "./webservice"},
     package_data={},
     install_requires=[
         'asyncpg==0.*,>=0.21.0', 'fastapi==0.*,>=0.61.1',

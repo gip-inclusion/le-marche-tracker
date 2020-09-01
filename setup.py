@@ -16,7 +16,7 @@ setup(
     name='itou_c4_python_api',
     version='0.1.0',
     description='Python API for JS Tracker',
-    python_requires='>=3.8',
+    python_requires='<4.0,>=3.8',
     author='pmontens',
     author_email='pieterjan@montens.net',
     entry_points={"console_scripts": ["api = webservice.main:main"]},

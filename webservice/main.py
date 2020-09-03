@@ -60,6 +60,7 @@ class TrackerModel(BaseModel):
     v: PositiveInt = Field(..., alias='_v', description="Version")
     timestamp: datetime = Field(..., description="Timestamp (UNIX Epoch)")
     order: int
+    env: str = None
 
     session_id: uuid.UUID = Field(..., description="browser session UUID")
     page: str = None
@@ -75,6 +76,7 @@ class TrackerModel(BaseModel):
                 "_v": 1,
                 "timestamp": "2019-11-18T10:14:14.758899+00:00",
                 "order": 10,
+                "env": "development",
                 "session_id": "77777777-6666-5555-4444-333333333333",
                 "page": "test_page",
                 "action": "load",
@@ -181,8 +183,12 @@ async def tracking(query: TrackerModel, request: Request, db=Depends(get_db)):
         session_id,
         version,
         send_order,
+        env,
+        source,
+        page,
+        action,
         data
-    ) VALUES ($1, $2, $3, $4);
+    ) VALUES ($1, $2, $3, $4, 'tracker', $5, $6, $7);
     """
     query.server_context.reception_timestamp = datetime.now()
     query.server_context.user_agent = request.headers['user-agent']
@@ -196,7 +202,16 @@ async def tracking(query: TrackerModel, request: Request, db=Depends(get_db)):
     else:
         query.server_context.client_ip = request.client.host
 
-    await db.execute(sql, query.session_id, query.v, query.order, json.dumps(jsonable_encoder(query)))
+    await db.execute(
+        sql,
+        query.session_id,
+        query.v,
+        query.order,
+        query.env,
+        query.page,
+        query.action,
+        json.dumps(jsonable_encoder(query))
+    )
     logger.debug('Wrote tracking log # %s from %s', query.order, query.session_id)
 
 

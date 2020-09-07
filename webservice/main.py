@@ -10,10 +10,11 @@ from datetime import datetime
 from enum import Enum
 
 import asyncpg
+from mailjet_rest import Client
 import pytz
 import uvicorn
 import yaml
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, BackgroundTasks
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel, Field, IPvAnyAddress, Json, PositiveInt
 from starlette.middleware.cors import CORSMiddleware
@@ -40,6 +41,7 @@ class Actions(str, Enum):
     load = 'load'
     scroll = 'scroll'
     click = 'click'
+    inscription = 'inscription'
 
 
 class ClientContext(BaseModel):
@@ -112,6 +114,12 @@ config = {
         'port': int(os.getenv('PORT', '5000')),
         'log_level': os.getenv('LOG_LEVEL', 'info'),
     },
+    'email': {
+        'host': os.getenv('MAILJET_HOST', 'localhost'),
+        'api_key': os.getenv('MAILJET_KEY', 'user'),
+        'api_secret': os.getenv('MAILJET_SECRET', ''),
+        'addr': os.getenv('NOTIF_MAIL', 'none@example.com'),
+    },
     'log_level': os.getenv('LOG_LEVEL', 'info'),
     'proxy_prefix': os.getenv('PROXY_PREFIX', '/'),
 }
@@ -135,6 +143,12 @@ app.add_middleware(
 DB_POOL = []
 
 
+MSG_LIST = {
+    'inscription': 'Nouvelle inscription d\'un utilisateur',
+    'listing_new': 'Publication nouvelle annonce',
+}
+
+
 # ####################################################################### UTILS
 # #############################################################################
 async def get_db():
@@ -144,6 +158,56 @@ async def get_db():
         yield conn
     finally:
         await DB_POOL.release(conn)
+
+
+# XXX: Test only, can be removed
+# async def coro_test():
+#     while True:
+#         await asyncio.sleep(5)
+#         logger.warning('coro is still running !')
+
+
+# ################################################ STARTUP AND BACKGROUND TASKS
+# #############################################################################
+@app.on_event("startup")
+async def startup_event():
+    # Async task example:
+    # asyncio.create_task(coro_test())
+    pass
+
+
+def check_notifications(query):
+    if query.action in MSG_LIST.keys():
+        logger.info('Inscription event, notifying by mail')
+        send_notification(
+            subject=f'{query.action} [{query.env}]',
+            message=MSG_LIST.get(query.action, '(erreur message type)'),
+            data=query.meta
+        )
+
+
+def send_notification(subject="", message="", data={}):
+    cfg = config['email']
+    msg = {}
+    msg['From'] = {'Name': 'BITOUBI Notifications', 'Email': '<noreply@inclusion.beta.gouv.fr>'}
+    msg['To'] = [{'Name': 'Le Marché', 'Email': cfg['addr']}]
+
+    logger.info('connecting')
+    mailjet = Client(auth=(cfg['api_key'], cfg['api_secret']), version='v3.1')
+    data = {
+        'Messages': [
+            {
+                'From': msg['From'],
+                'To': msg['To'],
+                'Subject': f"C4 Notif: {subject}",
+                'TextPart': f"Notification C4:\n\n{message}\n\n---\n{yaml.dump(data,indent=2)}"
+            }
+        ]
+    }
+    result = mailjet.send.create(data=data)
+    logger.info(result.status_code)
+    logger.info(result.json())
+    logger.info('Sent notification %s', subject)
 
 
 # ############################################################### SERVER ROUTES
@@ -174,7 +238,7 @@ def root():
 
 
 @app.post("/track")
-async def tracking(query: TrackerModel, request: Request, db=Depends(get_db)):
+async def tracking(query: TrackerModel, request: Request, background_tasks: BackgroundTasks, db=Depends(get_db)):
     """
     Tracking endpoint
     """
@@ -190,6 +254,10 @@ async def tracking(query: TrackerModel, request: Request, db=Depends(get_db)):
         data
     ) VALUES ($1, $2, $3, $4, 'tracker', $5, $6, $7);
     """
+    # Plan a background task
+    background_tasks.add_task(check_notifications, query)
+
+    # Enrich query data
     query.server_context.reception_timestamp = datetime.now()
     query.server_context.user_agent = request.headers['user-agent']
 

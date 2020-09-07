@@ -42,6 +42,7 @@ class Actions(str, Enum):
     scroll = 'scroll'
     click = 'click'
     inscription = 'inscription'
+    listing_new = 'listing_new'
 
 
 class ClientContext(BaseModel):

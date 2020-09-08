@@ -260,7 +260,7 @@ async def tracking(query: TrackerModel, request: Request, background_tasks: Back
 
     # Enrich query data
     query.server_context.reception_timestamp = datetime.now()
-    query.server_context.user_agent = request.headers['user-agent']
+    query.server_context.user_agent = request.headers.get('user-agent', 'not_defined')
 
     # Check if request has been forwared by proxy
     logger.debug('Available request headers: %s', ', '.join(request.headers.keys()))

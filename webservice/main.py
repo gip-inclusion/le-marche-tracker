@@ -231,8 +231,8 @@ def linkto_user(userid, query):
 
 def linkto_listing(listingid, query):
     if query.env == 'staging':
-        return f"https://bitoubi-staging.cleverapps.io/admin/listing/{userid}/edit"
-    return f"https://lemarche.inclusion.beta.gouv.fr/admin/listing/{userid}/edit"
+        return f"https://bitoubi-staging.cleverapps.io/admin/listing/{listingid}/edit"
+    return f"https://lemarche.inclusion.beta.gouv.fr/admin/listing/{listingid}/edit"
 
 
 # ############################################################### SERVER ROUTES

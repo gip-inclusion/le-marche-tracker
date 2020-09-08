@@ -198,7 +198,7 @@ def send_notification(query):
             {
                 'From': msg['From'],
                 'To': msg['To'],
-                'Subject': f"C4 Notif: {query.action} [{query.env}]",
+                'Subject': f"C4 Notif: {MSG_LIST.get(query.action, 'action')} [{query.env}]",
                 'TextPart': write_notification(query)
             }
         ]

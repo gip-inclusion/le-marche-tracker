@@ -43,6 +43,7 @@ class Actions(str, Enum):
     click = 'click'
     inscription = 'inscription'
     listing_new = 'listing_new'
+    quote_new = 'quote_new'
 
 
 class ClientContext(BaseModel):
@@ -145,8 +146,9 @@ DB_POOL = []
 
 
 MSG_LIST = {
-    'inscription': 'Nouvelle inscription d\'un utilisateur',
+    'inscription': 'Inscription d\'un nouvel utilisateur',
     'listing_new': 'Publication nouvelle annonce',
+    'quote_new': 'Nouvelle demande de devis',
 }
 
 
@@ -179,15 +181,11 @@ async def startup_event():
 
 def check_notifications(query):
     if query.action in MSG_LIST.keys():
-        logger.info('Inscription event, notifying by mail')
-        send_notification(
-            subject=f'{query.action} [{query.env}]',
-            message=MSG_LIST.get(query.action, '(erreur message type)'),
-            data=query.meta
-        )
+        logger.info('Event of interest, notifying by mail')
+        send_notification(query)
 
 
-def send_notification(subject="", message="", data={}):
+def send_notification(query):
     cfg = config['email']
     msg = {}
     msg['From'] = {'Name': 'BITOUBI Notifications', 'Email': '<noreply@inclusion.beta.gouv.fr>'}
@@ -200,15 +198,41 @@ def send_notification(subject="", message="", data={}):
             {
                 'From': msg['From'],
                 'To': msg['To'],
-                'Subject': f"C4 Notif: {subject}",
-                'TextPart': f"Notification C4:\n\n{message}\n\n---\n{yaml.dump(data,indent=2)}"
+                'Subject': f"C4 Notif: {query.action} [{query.env}]",
+                'TextPart': write_notification(query)
             }
         ]
     }
     result = mailjet.send.create(data=data)
     logger.info(result.status_code)
     logger.info(result.json())
-    logger.info('Sent notification %s', subject)
+    logger.info('Sent notification %s', data['Messages'][0]['Subject'])
+
+
+def write_notification(query):
+    data = query.meta
+    message = MSG_LIST.get(query.action, '(erreur message type)')
+    if query.action == 'inscription':
+        link = linkto_user(data.get('id', 'error'), query)
+        return f"Notification C4:\n\n{message}\n\n---\n{yaml.dump(data,indent=2)}\n---\n\n{link}"
+
+    if query.action == 'listing_new':
+        link = linkto_listing(data.get('id', 'error'), query)
+        return f"Notification C4:\n\n{message}\n\n---\n{yaml.dump(data,indent=2)}\n---\n\n{link}"
+
+    return f"Notification C4:\n\n{message}\n\n---\n{yaml.dump(data,indent=2)}"
+
+
+def linkto_user(userid, query):
+    if query.env == 'staging':
+        return f"https://bitoubi-staging.cleverapps.io/admin/user/{userid}/edit"
+    return f"https://lemarche.inclusion.beta.gouv.fr/admin/user/{userid}/edit"
+
+
+def linkto_listing(listingid, query):
+    if query.env == 'staging':
+        return f"https://bitoubi-staging.cleverapps.io/admin/listing/{userid}/edit"
+    return f"https://lemarche.inclusion.beta.gouv.fr/admin/listing/{userid}/edit"
 
 
 # ############################################################### SERVER ROUTES

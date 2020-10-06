@@ -14,7 +14,7 @@ ENV ENV=${ENV} \
 
 RUN pip install "poetry==$POETRY_VERSION"
 
-# RUN apt-get update && apt-get upgrade -y && \
+RUN apt-get update && apt-get upgrade -y
 #     apt-get install build-essential -y
 WORKDIR /app
 COPY poetry.lock pyproject.toml /app/

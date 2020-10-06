@@ -10,11 +10,11 @@ ENV ENV=${ENV} \
   PIP_NO_CACHE_DIR=off \
   PIP_DISABLE_PIP_VERSION_CHECK=on \
   PIP_DEFAULT_TIMEOUT=100 \
-  POETRY_VERSION=1.1.0b2
+  POETRY_VERSION=1.1.1
 
-RUN pip install "poetry==$POETRY_VERSION"
 
 RUN apt-get update && apt-get upgrade -y
+RUN pip install "poetry==$POETRY_VERSION"
 #     apt-get install build-essential -y
 WORKDIR /app
 COPY poetry.lock pyproject.toml /app/

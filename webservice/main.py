@@ -44,6 +44,7 @@ class Actions(str, Enum):
     inscription = 'inscription'
     listing_new = 'listing_new'
     quote_new = 'quote_new'
+    metric_userlink = 'metric_userlink'
 
 
 class ClientContext(BaseModel):
@@ -149,6 +150,7 @@ MSG_LIST = {
     'inscription': 'Inscription d\'un nouvel utilisateur',
     'listing_new': 'Publication nouvelle annonce',
     'quote_new': 'Nouvelle demande de devis',
+    'metric_userlink' : 'Nouvelle mise en relation',
 }
 
 

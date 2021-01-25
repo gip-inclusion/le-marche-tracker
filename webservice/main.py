@@ -45,6 +45,9 @@ class Actions(str, Enum):
     listing_new = 'listing_new'
     quote_new = 'quote_new'
     metric_userlink = 'metric_userlink'
+    directory_search = 'directory_search'
+    directory_list = 'directory_list'
+    directory_csv = 'directory_csv'
 
 
 class ClientContext(BaseModel):

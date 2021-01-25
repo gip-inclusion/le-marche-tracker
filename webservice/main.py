@@ -282,8 +282,9 @@ async def tracking(query: TrackerModel, request: Request, background_tasks: Back
         source,
         page,
         action,
-        data
-    ) VALUES ($1, $2, $3, $4, 'tracker', $5, $6, $7);
+        data,
+        isadmin,
+    ) VALUES ($1, $2, $3, $4, 'tracker', $5, $6, $7, $8);
     """
     # Plan a background task
     background_tasks.add_task(check_notifications, query)
@@ -309,7 +310,8 @@ async def tracking(query: TrackerModel, request: Request, background_tasks: Back
         query.env,
         query.page,
         query.action,
-        json.dumps(jsonable_encoder(query))
+        json.dumps(jsonable_encoder(query)),
+        query.meta.get('is_admin', False),
     )
     logger.debug('Wrote tracking log # %s from %s', query.order, query.session_id)
 

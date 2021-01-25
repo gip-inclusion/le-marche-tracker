@@ -52,6 +52,7 @@ class Actions(str, Enum):
 
 class ClientContext(BaseModel):
     referer: str = None
+    user_agent: str = None
 
 
 class ServerContext(BaseModel):

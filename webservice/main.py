@@ -283,7 +283,7 @@ async def tracking(query: TrackerModel, request: Request, background_tasks: Back
         page,
         action,
         data,
-        isadmin,
+        isadmin
     ) VALUES ($1, $2, $3, $4, 'tracker', $5, $6, $7, $8);
     """
     # Plan a background task

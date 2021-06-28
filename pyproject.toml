@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "itou_c4_python_api"
-version = "0.1.0"
+version = "0.1.1"
 description = "Python API for JS Tracker"
 authors = ["pmontens <pieterjan@montens.net>"]
 packages = [

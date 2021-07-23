@@ -50,6 +50,7 @@ class Actions(str, Enum):
     directory_csv = 'directory_csv'
     adopt = 'adopt'
     adopt_search = 'adopt_search'
+    misc = 'misc'
 
 
 class ClientContext(BaseModel):

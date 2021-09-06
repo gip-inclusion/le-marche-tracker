@@ -298,10 +298,10 @@ async def tracking(query: TrackerModel, request: Request, background_tasks: Back
 
     # Check if request has been forwared by proxy
     logger.debug('Available request headers: %s', ', '.join(request.headers.keys()))
-    if 'X-Real-IP' in request.headers:
-        query.server_context.client_ip = request.headers['X-Real-Ip']
-    elif 'x-real-ip' in request.headers:
-        query.server_context.client_ip = request.headers['x-real-ip']
+
+    # See: https://www.clever-cloud.com/doc/find-help/faq/#how-to-get-the-users-ip-address
+    if 'X-Forwarded-For' in request.headers:
+        query.server_context.client_ip = request.headers['X-Forwarded-For'].split(',')[0]
     else:
         query.server_context.client_ip = request.client.host
 

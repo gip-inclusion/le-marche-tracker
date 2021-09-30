@@ -79,3 +79,10 @@ AS
 WHERE  trackers.env = 'prod'
 AND trackers.isadmin = FALSE
 AND trackers.source = 'tracker'  
+
+CREATE INDEX ON trackers(env, isadmin, source);
+CREATE INDEX ON trackers((data->'meta'->>'source')) WHERE data->'meta'->>'source' IS NOT NULL;
+CREATE INDEX ON trackers((data->'meta'->>'user_type')) WHERE data->'meta'->>'user_type' IS NOT NULL;
+CREATE INDEX ON trackers((data->'meta'->>'user_cookie_type'))  WHERE data->'meta'->>'user_cookie_type' IS NOT NULL;
+CREATE INDEX ON trackers((data->>'session_id'))  WHERE data->>'session_id' IS NOT NULL;
+

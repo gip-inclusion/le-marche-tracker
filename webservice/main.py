@@ -154,7 +154,7 @@ DB_POOL = []
 
 
 MSG_LIST = {
-    'inscription': 'Inscription d\'un nouvel utilisateur',
+    # 'inscription': 'Inscription d\'un nouvel utilisateur',
     'listing_new': 'Publication nouvelle annonce',
     'quote_new': 'Nouvelle demande de devis',
     'metric_userlink': 'Nouvelle mise en relation',

@@ -57,10 +57,10 @@ AS
            ELSE ''
          END                            AS click_href,
          CASE
-           WHEN trackers.data -> 'meta' ->> 'user_email' IS NULL THEN ''
-           WHEN trackers.data -> 'meta' ->> 'user_email' != '' THEN trackers.data -> 'meta' ->> 'user_email'
+           WHEN trackers.data -> 'meta' ->> 'user_id' IS NULL THEN ''
+           WHEN trackers.data -> 'meta' ->> 'user_id' != '' THEN trackers.data -> 'meta' ->> 'user_id'
            ELSE ''
-         END                            AS user_email,
+         END                            AS user_id,
          CASE
            WHEN action = 'directory_search' THEN jsonb_build_object(
             'searchType', data->'meta'->'searchType',
@@ -88,7 +88,7 @@ AND trackers.source = 'tracker'
 CREATE INDEX ON trackers(env, isadmin, source);
 CREATE INDEX ON trackers((data->'meta'->>'source')) WHERE data->'meta'->>'source' IS NOT NULL;
 CREATE INDEX ON trackers((data->'meta'->>'user_type')) WHERE data->'meta'->>'user_type' IS NOT NULL;
-CREATE INDEX ON trackers((data->'meta'->>'user_email'))  WHERE data->'meta'->>'user_email' IS NOT NULL;
+CREATE INDEX ON trackers((data->'meta'->>'user_id'))  WHERE data->'meta'->>'user_id' IS NOT NULL;
 CREATE INDEX ON trackers((data->'meta'->>'user_cookie_type'))  WHERE data->'meta'->>'user_cookie_type' IS NOT NULL;
 CREATE INDEX ON trackers((data->'meta'->>'id'))  WHERE data->'meta'->>'id' IS NOT NULL;
 CREATE INDEX ON trackers((data->>'session_id'))  WHERE data->>'session_id' IS NOT NULL;

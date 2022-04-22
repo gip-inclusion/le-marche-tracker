@@ -79,9 +79,6 @@ class TrackerModel(BaseModel):
     action: Actions = Field(..., description="Type d'action")
     meta: Json = None
 
-    client_context: ClientContext
-    server_context: ServerContext
-
     class Config:
         schema_extra = {
             'example': {
@@ -93,15 +90,6 @@ class TrackerModel(BaseModel):
                 "page": "test_page",
                 "action": "load",
                 "meta": "{}",
-                "client_context": {
-                    "referer": None,
-                },
-                "server_context": {
-                    "user_agent": "DOES_NOT_EXIST",
-                    "client_ip": None,
-                    "reception_timestamp": None,
-                    "referer": "http://example.com"
-                }
             }
         }
 
@@ -292,19 +280,8 @@ async def tracking(query: TrackerModel, request: Request, background_tasks: Back
     # Plan a background task
     background_tasks.add_task(check_notifications, query)
 
-    # Enrich query data
-    query.server_context.reception_timestamp = datetime.now()
-    query.server_context.user_agent = request.headers.get('user-agent', 'not_defined')
-
     # Check if request has been forwared by proxy
     logger.debug('Available request headers: %s', ', '.join(request.headers.keys()))
-
-    if not query.server_context.client_ip:
-        # See: https://www.clever-cloud.com/doc/find-help/faq/#how-to-get-the-users-ip-address
-        if 'X-Forwarded-For' in request.headers:
-            query.server_context.client_ip = request.headers['X-Forwarded-For'].split(',')[0]
-        else:
-            query.server_context.client_ip = request.client.host
 
     await db.execute(
         sql,

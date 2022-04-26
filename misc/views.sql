@@ -31,23 +31,17 @@ AS
          CASE
           WHEN ( ( trackers.data -> 'meta' ) ->> 'source' ) = 'symfony' THEN 'back_symfony'
           WHEN ( ( trackers.data -> 'meta' ) ->> 'source' ) = 'bitoubi_api' THEN 'back_django'
-           ELSE 'front'
+          WHEN ( ( trackers.data -> 'meta' ) ->> 'source' ) = 'bitoubi_frontend' THEN 'front'
+           ELSE 'autre'
          END                            AS origin,
          CASE
            WHEN trackers.data -> 'meta' ->> 'user_type' IS NULL THEN 'anonyme'
-           WHEN trackers.data -> 'meta' ->> 'user_type' = '4' THEN 'structure inclusive'
-           WHEN trackers.data -> 'meta' ->> 'user_type' = '6' THEN 'partenaire'
-           WHEN trackers.data -> 'meta' ->> 'user_type' = '5' THEN 'administrateur'
-           WHEN trackers.data -> 'meta' ->> 'user_type' = '3' THEN 'acheteur'
+           WHEN trackers.data -> 'meta' ->> 'user_type' = '4' OR trackers.data -> 'meta' ->> 'user_type' = 'SIAE' THEN 'structure inclusive'
+           WHEN trackers.data -> 'meta' ->> 'user_type' = '6' OR trackers.data -> 'meta' ->> 'user_type' = 'PARTNER' THEN 'partenaire'
+           WHEN trackers.data -> 'meta' ->> 'user_type' = '5' OR trackers.data -> 'meta' ->> 'user_type' = 'ADMIN' THEN 'administrateur'
+           WHEN trackers.data -> 'meta' ->> 'user_type' = '3' OR trackers.data -> 'meta' ->> 'user_type' = 'BUYER' THEN 'acheteur'
            ELSE 'autre'
          END                            AS user_type,
-         CASE
-           WHEN trackers.data -> 'meta' ->> 'user_cookie_type' IS NULL THEN 'anonyme'
-           WHEN trackers.data -> 'meta' ->> 'user_cookie_type' = 'actor' THEN 'acteur'
-           WHEN trackers.data -> 'meta' ->> 'user_cookie_type' = 'buyer' THEN 'acheteur'
-           WHEN trackers.data -> 'meta' ->> 'user_cookie_type' = 'siae' THEN 'structure'
-           ELSE 'autre'
-         END                            AS user_cookie_type,
          CASE
            WHEN action = 'click' THEN data->'meta'->>'id'
            ELSE ''
@@ -89,7 +83,5 @@ CREATE INDEX ON trackers(env, isadmin, source);
 CREATE INDEX ON trackers((data->'meta'->>'source')) WHERE data->'meta'->>'source' IS NOT NULL;
 CREATE INDEX ON trackers((data->'meta'->>'user_type')) WHERE data->'meta'->>'user_type' IS NOT NULL;
 CREATE INDEX ON trackers((data->'meta'->>'user_id'))  WHERE data->'meta'->>'user_id' IS NOT NULL;
-CREATE INDEX ON trackers((data->'meta'->>'user_cookie_type'))  WHERE data->'meta'->>'user_cookie_type' IS NOT NULL;
 CREATE INDEX ON trackers((data->'meta'->>'id'))  WHERE data->'meta'->>'id' IS NOT NULL;
 CREATE INDEX ON trackers((data->>'session_id'))  WHERE data->>'session_id' IS NOT NULL;
-

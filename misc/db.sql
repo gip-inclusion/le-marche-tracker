@@ -4,7 +4,6 @@ CREATE TABLE trackers (
     version INT NOT NULL,
     date_created TIMESTAMP WITH TIME ZONE DEFAULT now(),
     send_order INT,
-
     session_id UUID NOT NULL,
     env TEXT NOT NULL,
     source TEXT NOT NULL,

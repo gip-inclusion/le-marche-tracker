@@ -41,18 +41,21 @@ SELECT
       WHEN trackers.action = 'click' THEN (trackers.data -> 'meta') ->> 'href'
       ELSE ''
   END AS click_href,
-  CASE --search request
+  CASE
     WHEN trackers.action = 'directory_search' THEN jsonb_build_object(
-      'searchType', (trackers.data -> 'meta') -> 'searchType',
-      'city', (trackers.data -> 'meta') -> 'city',
-      'department', (trackers.data -> 'meta') -> 'department',
-      'region', (trackers.data -> 'meta') -> 'region',
-      'sector', (trackers.data -> 'meta') -> 'sector',
-      'type', (trackers.data -> 'meta') -> 'type',
-      'prestaType', (trackers.data -> 'meta') -> 'prestaType')
+      'searchType', (trackers.data -> 'meta') ->> 'searchType',
+      'city', (trackers.data -> 'meta') ->> 'city',
+      'department', (trackers.data -> 'meta') ->> 'department',
+      'region', (trackers.data -> 'meta') ->> 'region',
+      'sector', (trackers.data -> 'meta') ->> 'sectors',
+      'perimeters', (trackers.data -> 'meta') ->> 'perimeters',
+      'type', (trackers.data -> 'meta') ->> 'type',
+      'prestaType', (trackers.data -> 'meta') ->> 'prestaType',
+      'siaes_kind', (trackers.data -> 'meta') ->> 'kind',
+      'results_count', (trackers.data -> 'meta') ->> 'results_count')
     ELSE '"{}"'::jsonb
   END AS search_request,
-  CASE --adopted_structure
+  CASE
       WHEN trackers.action = 'adopt' THEN (trackers.data -> 'meta') ->> 'dir'
       ELSE NULL
   END AS adopted_structure,
